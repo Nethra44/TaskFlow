@@ -36,7 +36,7 @@ export default function App() {
     if (!currentId) return;
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/tasks/${currentId}`,
+        `https://task-flow-sog6.vercel.app/api/tasks/${currentId}`,
       );
       setTasks(res.data);
     } catch (err) {

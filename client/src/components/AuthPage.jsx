@@ -26,7 +26,7 @@ export default function AuthPage({ onLoginSuccess }) {
             : "/api/forgot-password";
 
       const res = await axios.post(
-        `http://localhost:5000${endpoint}`,
+        `https://task-flow-sog6.vercel.app${endpoint}${endpoint}`,
         formData,
       );
 

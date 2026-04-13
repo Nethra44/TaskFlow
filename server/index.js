@@ -9,8 +9,9 @@ app.use(cors());
 app.use(express.json());
 
 // 1. Database Connection
+const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/taskflow";
 mongoose
-  .connect("mongodb://localhost:27017/taskflow")
+  .connect(mongoURI)
   .then(() => console.log("🚀 MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Error:", err));
 

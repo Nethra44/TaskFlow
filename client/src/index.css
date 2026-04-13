@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  --bg-main: #f8fafc;
+  --sidebar-navy: #0f172a;
+  --accent-blue: #2563eb;
+}
+
+body {
+  @apply bg-[#f8fafc] text-slate-900;
+  font-family: 'Inter', sans-serif; /* Recommended for this UI */
+}
+
+/* Custom scrollbar to match the sleek design */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full;
+}

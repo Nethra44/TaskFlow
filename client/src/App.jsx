@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Menu, Plus, X } from "lucide-react";
-
+import { API_URL } from "./config";
 // Views
 import Dashboard from "./views/Dashboard";
 import AllTasks from "./views/AllTasks";
@@ -9,11 +9,11 @@ import Today from "./views/Today";
 import Upcoming from "./views/Upcoming";
 import Completed from "./views/Completed";
 import Settings from "./views/Settings";
-
 // Components
 import AuthPage from "./components/AuthPage";
 import Sidebar from "./components/Sidebar";
-
+import { Routes, Route } from "react-router-dom";
+import ResetPassword from "./components/ResetPassword";
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("userId"),
@@ -35,9 +35,7 @@ export default function App() {
     const currentId = localStorage.getItem("userId");
     if (!currentId) return;
     try {
-      const res = await axios.get(
-        `https://task-flow-sog6.vercel.app/api/tasks/${currentId}`,
-      );
+      const res = await axios.get(`${API_URL}/api/tasks/${currentId}`);
       setTasks(res.data);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -70,12 +68,9 @@ export default function App() {
 
     try {
       if (editingTask) {
-        await axios.put(
-          `http://localhost:5000/api/tasks/${editingTask._id}`,
-          taskData,
-        );
+        await axios.put(`${API_URL}/api/tasks/${editingTask._id}`, taskData);
       } else {
-        await axios.post("http://localhost:5000/api/tasks", taskData);
+        await axios.post(`${API_URL}/api/tasks`, taskData);
       }
       closeModal();
       fetchMyTasks();
@@ -90,7 +85,7 @@ export default function App() {
       prev.map((t) => (t._id === id ? { ...t, status: newStatus } : t)),
     );
     try {
-      await axios.put(`http://localhost:5000/api/tasks/${id}`, {
+      await axios.put(`${API_URL}/api/tasks/${id}`, {
         status: newStatus,
       });
     } catch (err) {
@@ -100,7 +95,7 @@ export default function App() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/tasks/${id}`);
+      await axios.delete(`${API_URL}/api/tasks/${id}`);
       setTasks((prev) => prev.filter((t) => t._id !== id));
     } catch (err) {
       console.error("Delete error:", err);
@@ -154,8 +149,17 @@ export default function App() {
     }
   };
 
-  if (!isAuthenticated)
-    return <AuthPage onLoginSuccess={() => setIsAuthenticated(true)} />;
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route
+          path="/"
+          element={<AuthPage onLoginSuccess={() => setIsAuthenticated(true)} />}
+        />
+        <Route path="/reset-password/:id" element={<ResetPassword />} />
+      </Routes>
+    );
+  }  
 
   return (
     <div className="flex min-h-screen bg-[#fcfdfe]">

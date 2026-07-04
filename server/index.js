@@ -3,13 +3,14 @@ import cors from "cors";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
-
+import dotenv from "dotenv";
+dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // 1. Database Connection
-const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/taskflow";
+const mongoURI = process.env.MONGO_URI;
 mongoose
   .connect(mongoURI)
   .then(() => console.log("🚀 MongoDB Connected"))
@@ -40,8 +41,8 @@ const Task = mongoose.model("Task", TaskSchema);
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "your-email@gmail.com",
-    pass: "xxxx xxxx xxxx xxxx",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -58,26 +59,33 @@ app.post("/api/signup", async (req, res) => {
     // UPDATED: Return name in the response
     res.status(201).json({ userId: user._id, name: user.name });
   } catch (err) {
-    res.status(400).json({ message: "Account already exists." });
+    res.status(400).json({ message: "Email already exists" });
   }
 });
 
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const user = await User.findOne({ email });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      // UPDATED: Include the name in the login response
-      res.status(200).json({
-        userId: user._id,
-        name: user.name,
-        email: user.email,
-      });
-    } else {
-      res.status(401).json({ message: "Invalid email or password." });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    res.status(200).json({
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+    });
   } catch (err) {
-    res.status(500).json({ message: "Server error during login." });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -88,15 +96,15 @@ app.post("/api/forgot-password", async (req, res) => {
     if (!user) return res.status(404).json({ message: "Email not found." });
 
     const mailOptions = {
-      from: '"TaskFlow Support" <your-email@gmail.com>',
+      from: `"TaskFlow Support" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "TaskFlow Password Reset",
       html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:20px;">
               <h2>Reset Password</h2>
               <p>Click below to reset your TaskFlow password:</p>
-              <a href="http://localhost:5173/reset-password/${user._id}" 
+              <a  href="${process.env.CLIENT_URL}/reset-password/${user._id}"
                  style="background:#0f172a;color:white;padding:12px 20px;text-decoration:none;border-radius:10px;display:inline-block;">
-                Reset Password
+                 Reset Password
               </a>
              </div>`,
     };

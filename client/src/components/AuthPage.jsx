@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Mail, Lock, User, ArrowRight, Zap } from "lucide-react";
 import axios from "axios";
-
+import { API_URL } from "../config";
 export default function AuthPage({ onLoginSuccess }) {
   const [authState, setAuthState] = useState("login");
   const [loading, setLoading] = useState(false);
@@ -25,10 +25,7 @@ export default function AuthPage({ onLoginSuccess }) {
             ? "/api/signup"
             : "/api/forgot-password";
 
-      const res = await axios.post(
-        `https://task-flow-sog6.vercel.app${endpoint}${endpoint}`,
-        formData,
-      );
+      const res = await axios.post(`${API_URL}${endpoint}`, formData);
 
       if (authState === "forgot") {
         alert("Link sent!");
@@ -48,10 +45,14 @@ export default function AuthPage({ onLoginSuccess }) {
         onLoginSuccess();
       }
     } catch (err) {
-      alert("Error connecting to server");
-    } finally {
-      setLoading(false);
-    }
+      console.error(err);
+
+  if (err.response) {
+    alert(err.response.data.message);
+  } else {
+    alert("Cannot connect to backend");
+  }
+}
   };
 
   return (
@@ -143,11 +144,7 @@ export default function AuthPage({ onLoginSuccess }) {
               className="w-full py-4 bg-slate-950 hover:bg-blue-600 text-white font-black rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 mt-4"
             >
               <span className="text-xs uppercase tracking-widest">
-                {loading
-                  ? "..."
-                  : authState === "login"
-                    ? "Sign In"
-                    : "Get Started"}
+                {authState === "login" ? "Sign In" : "Get Started"}
               </span>
               {!loading && <ArrowRight size={16} strokeWidth={3} />}
             </button>

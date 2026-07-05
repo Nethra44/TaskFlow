@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 dotenv.config();
 const app = express();
@@ -48,18 +48,7 @@ const TaskSchema = new mongoose.Schema({
 const User = mongoose.model("User", UserSchema);
 const Task = mongoose.model("Task", TaskSchema);
 // 3. Email Config
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // 3. Email Config
 // 3. Email Config
@@ -126,7 +115,23 @@ app.post("/api/forgot-password", async (req, res) => {
               </a>
              </div>`,
     };
-    await transporter.sendMail(mailOptions);
+    await resend.emails.send({
+      from: "TaskFlow <onboarding@resend.dev>",
+      to: email,
+      subject: "TaskFlow Password Reset",
+      html: `
+    <div style="font-family:sans-serif;padding:20px;">
+      <h2>Reset Password</h2>
+      <p>Click below to reset your password:</p>
+
+      <a href="${process.env.CLIENT_URL}/reset-password/${user._id}"
+      style="background:#0f172a;color:white;padding:12px 20px;text-decoration:none;border-radius:8px;">
+      Reset Password
+      </a>
+
+    </div>
+  `,
+    });
     res.json({ message: "Reset link sent!" });
   } catch (err) {
     console.error(err);

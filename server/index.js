@@ -43,8 +43,11 @@ const User = mongoose.model("User", UserSchema);
 const Task = mongoose.model("Task", TaskSchema);
 
 // 3. Email Config
+// 3. Email Config
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,

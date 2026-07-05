@@ -111,7 +111,11 @@ app.post("/api/forgot-password", async (req, res) => {
     await transporter.sendMail(mailOptions);
     res.json({ message: "Reset link sent!" });
   } catch (err) {
-    res.status(500).json({ message: "Email failed to send." });
+    console.error(err);
+    res.status(500).json({
+      message: "Email failed to send.",
+      error: err.message,
+    });
   }
 });
 

@@ -17,6 +17,7 @@ export default function AuthPage({ onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       let endpoint =
         authState === "login"
@@ -47,12 +48,14 @@ export default function AuthPage({ onLoginSuccess }) {
     } catch (err) {
       console.error(err);
 
-  if (err.response) {
-    alert(err.response.data.message);
-  } else {
-    alert("Cannot connect to backend");
-  }
-}
+      if (err.response) {
+        alert(err.response.data.message);
+      } else {
+        alert("Cannot connect to backend");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

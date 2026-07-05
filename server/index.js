@@ -115,11 +115,11 @@ app.post("/api/forgot-password", async (req, res) => {
               </a>
              </div>`,
     };
- const { data, error } = await resend.emails.send({
-  from: "TaskFlow <onboarding@resend.dev>",
-  to: email,
-  subject: "TaskFlow Password Reset",
-  html: `
+    const { data, error } = await resend.emails.send({
+      from: "TaskFlow <onboarding@resend.dev>",
+      to: email,
+      subject: "TaskFlow Password Reset",
+      html: `
     <div style="font-family:sans-serif;padding:20px;">
       <h2>Reset Password</h2>
       <p>Click below to reset your password:</p>
@@ -130,19 +130,27 @@ app.post("/api/forgot-password", async (req, res) => {
       </a>
     </div>
   `,
+    });
+
+    console.log("Resend Data:", data);
+    console.log("Resend Error:", error);
+
+    if (error) {
+      return res.status(500).json({
+        message: "Email failed to send.",
+        error,
+      });
+    }
+
+    res.json({ message: "Reset link sent!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Email failed to send.",
+      error: err.message,
+    });
+  }
 });
-
-console.log("Resend Data:", data);
-console.log("Resend Error:", error);
-
-if (error) {
-  return res.status(500).json({
-    message: "Email failed to send.",
-    error,
-  });
-}
-
-res.json({ message: "Reset link sent!" });
 
 app.put("/api/reset-password/:id", async (req, res) => {
   try {

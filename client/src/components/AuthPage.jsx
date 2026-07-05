@@ -146,10 +146,20 @@ export default function AuthPage({ onLoginSuccess }) {
               disabled={loading}
               className="w-full py-4 bg-slate-950 hover:bg-blue-600 text-white font-black rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 mt-4"
             >
-              <span className="text-xs uppercase tracking-widest">
-                {authState === "login" ? "Sign In" : "Get Started"}
-              </span>
-              {!loading && <ArrowRight size={16} strokeWidth={3} />}
+              {loading ? (
+                "Loading..."
+              ) : (
+                <>
+                  <span className="text-xs uppercase tracking-widest">
+                    {authState === "login"
+                      ? "Sign In"
+                      : authState === "signup"
+                        ? "Get Started"
+                        : "Send Reset Link"}
+                  </span>
+                  <ArrowRight size={16} strokeWidth={3} />
+                </>
+              )}
             </button>
           </form>
 

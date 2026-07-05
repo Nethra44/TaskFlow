@@ -8,10 +8,16 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://taskflow-client-ealh.onrender.com",
+    ],
     credentials: true,
   }),
 );
+
+app.use(express.json());
 app.use(express.json());
 
 // 1. Database Connection
@@ -41,8 +47,6 @@ const TaskSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 const Task = mongoose.model("Task", TaskSchema);
-
-// 3. Email Config
 // 3. Email Config
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -53,6 +57,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+// 3. Email Config
+// 3. Email Config
 
 // 4. Auth Routes
 app.post("/api/signup", async (req, res) => {

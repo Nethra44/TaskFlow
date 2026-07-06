@@ -4,7 +4,7 @@ import axios from "axios";
 import { API_URL } from "../config";
 
 export default function ResetPassword() {
-  const { id } = useParams();
+  const id = window.location.pathname.split("/").pop();
   const navigate = useNavigate();
 
   const [password, setPassword] = useState("");

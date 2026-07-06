@@ -113,37 +113,49 @@ app.post("/api/login", async (req, res) => {
 app.post("/api/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
+
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "Email not found." });
+    if (!user) {
+      return res.status(404).json({ message: "Email not found." });
+    }
 
     const mailOptions = {
       from: `"TaskFlow Support" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "TaskFlow Password Reset",
-      html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:20px;">
-              <h2>Reset Password</h2>
-              <p>Click below to reset your TaskFlow password:</p>
-              <a  href="${process.env.CLIENT_URL}/reset-password/${user._id}"
-                 style="background:#0f172a;color:white;padding:12px 20px;text-decoration:none;border-radius:10px;display:inline-block;">
-                 Reset Password
-              </a>
-             </div>`,
+      html: `
+        <div style="font-family:sans-serif;padding:20px">
+          <h2>Reset Password</h2>
+          <p>Click the button below:</p>
+
+          <a href="${process.env.CLIENT_URL}/reset-password/${user._id}">
+            Reset Password
+          </a>
+        </div>
+      `,
     };
+
     console.log("EMAIL_USER:", process.env.EMAIL_USER);
     console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info);
-    res.json({ message: "Reset link sent!" });
-  } catch (err) {
-  console.error("Forgot password error:");
-  console.error(err);
 
-  res.status(500).json({
-    message: "Email failed to send.",
-    error: err.message,
-  });
-}
+    console.log("Email sent:", info);
+
+    return res.json({
+      message: "Reset link sent!",
+    });
+  } catch (err) {
+    console.error("Forgot password error:");
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Email failed to send.",
+      error: err.message,
+      code: err.code,
+      response: err.response,
+    });
+  }
 });
 
 app.put("/api/reset-password/:id", async (req, res) => {

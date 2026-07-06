@@ -129,6 +129,9 @@ app.post("/api/forgot-password", async (req, res) => {
               </a>
              </div>`,
     };
+    console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent:", info);
     res.json({ message: "Reset link sent!" });

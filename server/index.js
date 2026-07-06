@@ -11,7 +11,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://taskflow-client-ealh.onrender.com",
+      "https://task-flow-weld-tau.vercel.app",
     ],
     credentials: true,
   }),

@@ -18,8 +18,6 @@ app.use(
 );
 
 app.use(express.json());
-app.use(express.json());
-
 // 1. Database Connection
 const mongoURI = process.env.MONGO_URI;
 mongoose
@@ -45,24 +43,29 @@ const TaskSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
+
+// 3. Email Config
+// 3. Email Config
 const User = mongoose.model("User", UserSchema);
 const Task = mongoose.model("Task", TaskSchema);
+
 // 3. Email Config
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
 });
-
-// 3. Email Config
-// 3. Email Config
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("SMTP Error:", error);
+  } else {
+    console.log("✅ SMTP Server is ready");
+  }
+});
 
 // 4. Auth Routes
 app.post("/api/signup", async (req, res) => {
@@ -126,15 +129,18 @@ app.post("/api/forgot-password", async (req, res) => {
               </a>
              </div>`,
     };
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent:", info);
     res.json({ message: "Reset link sent!" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      message: "Email failed to send.",
-      error: err.message,
-    });
-  }
+  console.error("Forgot password error:");
+  console.error(err);
+
+  res.status(500).json({
+    message: "Email failed to send.",
+    error: err.message,
+  });
+}
 });
 
 app.put("/api/reset-password/:id", async (req, res) => {

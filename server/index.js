@@ -125,14 +125,12 @@ app.post("/api/forgot-password", async (req, res) => {
       message: "Reset link sent!",
     });
   } catch (err) {
-    console.error("Forgot password error:");
+    console.error("RESEND ERROR:");
     console.error(err);
 
     return res.status(500).json({
       message: "Email failed to send.",
       error: err.message,
-      code: err.code,
-      response: err.response,
     });
   }
 });

@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 dotenv.config();
 const app = express();
@@ -50,23 +50,7 @@ const User = mongoose.model("User", UserSchema);
 const Task = mongoose.model("Task", TaskSchema);
 
 // 3. Email Config
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP Error:", error);
-  } else {
-    console.log("✅ SMTP Server is ready");
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // 4. Auth Routes
 app.post("/api/signup", async (req, res) => {
@@ -119,27 +103,21 @@ app.post("/api/forgot-password", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Email not found." });
     }
-
-    const mailOptions = {
-      from: `"TaskFlow Support" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "TaskFlow <onboarding@resend.dev>",
       to: email,
       subject: "TaskFlow Password Reset",
       html: `
-        <div style="font-family:sans-serif;padding:20px">
-          <h2>Reset Password</h2>
-          <p>Click the button below:</p>
+    <div style="font-family:sans-serif;padding:20px">
+      <h2>Reset Password</h2>
+      <p>Click the button below:</p>
 
-          <a href="${process.env.CLIENT_URL}/reset-password/${user._id}">
-            Reset Password
-          </a>
-        </div>
-      `,
-    };
-
-    console.log("EMAIL_USER:", process.env.EMAIL_USER);
-    console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
-
-    const info = await transporter.sendMail(mailOptions);
+      <a href="${process.env.CLIENT_URL}/reset-password/${user._id}">
+        Reset Password
+      </a>
+    </div>
+  `,
+    });
 
     console.log("Email sent:", info);
 

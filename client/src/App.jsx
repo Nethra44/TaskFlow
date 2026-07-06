@@ -15,6 +15,7 @@ import Sidebar from "./components/Sidebar";
 import { Routes, Route } from "react-router-dom";
 import ResetPassword from "./components/ResetPassword";
 export default function App() {
+  const isResetPage = window.location.pathname.startsWith("/reset-password/");
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("userId"),
   );
@@ -148,18 +149,14 @@ export default function App() {
         return <Dashboard {...props} />;
     }
   };
+if (isResetPage) {
+  return <ResetPassword />;
+}
 
-  if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route
-          path="/"
-          element={<AuthPage onLoginSuccess={() => setIsAuthenticated(true)} />}
-        />
-        <Route path="/reset-password/:id" element={<ResetPassword />} />
-      </Routes>
-    );
-  }  
+if (!isAuthenticated) {
+  return <AuthPage onLoginSuccess={() => setIsAuthenticated(true)} />;
+}
+ 
 
   return (
     <div className="flex min-h-screen bg-[#fcfdfe]">

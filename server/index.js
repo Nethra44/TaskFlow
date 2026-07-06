@@ -103,7 +103,7 @@ app.post("/api/forgot-password", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Email not found." });
     }
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: "TaskFlow <onboarding@resend.dev>",
       to: email,
       subject: "TaskFlow Password Reset",
@@ -119,7 +119,12 @@ app.post("/api/forgot-password", async (req, res) => {
   `,
     });
 
-    console.log("Email sent:", info);
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ message: error.message });
+    }
+
+    console.log("Email sent:", data);
 
     return res.json({
       message: "Reset link sent!",

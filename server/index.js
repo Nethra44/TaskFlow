@@ -176,7 +176,7 @@ app.delete("/api/tasks/:id", async (req, res) => {
   res.json({ message: "Deleted" });
 });
 app.get("/test", (req, res) => {
-  res.send("Server is running!");
+  res.send("Version 2 - Nethra");
 });
 const PORT = process.env.PORT || 5000;
 
